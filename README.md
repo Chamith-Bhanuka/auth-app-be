@@ -63,16 +63,31 @@ Request:
 }
 
 ```
+Response:
+```json
+{
+  "success": true,
+  "message": "User registered",
+  "data": "success"
+}
 
-### Register User
+```
 
-POST /auth/register
+### Login User
+
+POST /auth/login
 
 Request:
 ```json
 {
-  "name": "John",
   "email": "john@gmail.com",
-  "password": "1234",
+  "password": "1234"
+}
+
+```
+Response:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0b21AZ21haWwuY29tIiwicm9sZSI6IkNVU1RPTUVSIiwiaWF0IjoxNzc1ODE0NjIyLCJleHAiOjE3NzU4MTgyMjJ9.BW5nhErZF4FU2rqCZWb8r1qwho0SziSP4v211_AzPpU",
   "role": "CUSTOMER"
 }

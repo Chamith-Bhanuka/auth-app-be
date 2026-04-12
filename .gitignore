@@ -35,3 +35,5 @@ build/
 *.properties
 /application.properties
 
+.env
+
