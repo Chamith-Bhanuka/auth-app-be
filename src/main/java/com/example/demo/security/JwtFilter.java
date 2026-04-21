@@ -20,51 +20,52 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JWTUtil jwtService;
     private final CustomUserDetailsService userDetailsService;
 
-
-    // skip JWT filter for public auth endpoints
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getServletPath().startsWith("/auth");
-    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // read Authorization header
-        String authHeader = request.getHeader("Authorization");
+        String token = null;
 
-        // If no token, continue request
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // look for the token in Cookie
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("accessToken".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-
-        // validate token
+        // validate the token found in the cookie
         if (!jwtService.isValid(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // set authentication context if valid
         String email = jwtService.extractEmail(token);
-
-        // load full user details from database
         var userDetails = userDetailsService.loadUserByUsername(email);
 
-        // put authenticated user into Spring Security context
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities()
                 );
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getServletPath().startsWith("/auth");
     }
 }
 

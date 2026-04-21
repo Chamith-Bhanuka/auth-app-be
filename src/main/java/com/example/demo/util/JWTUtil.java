@@ -14,16 +14,24 @@ public class JWTUtil {
     @Value("${jwt.secretKey}")
     private String SECRET;
 
-    // create token when user logs in
-    public String generateToken(String email, String role) {
+    // short-lived - 15 minutes
+    public String generateAccessToken(String email, String role) {
+        return createToken(email, role, 1000 * 60 * 15);
+    }
 
-        return Jwts.builder()
+    // long-lived - 7 days
+    public String generateRefreshToken(String email) {
+        return createToken(email, null, 1000 * 60 * 60 * 24 * 7);
+    }
+
+    private String createToken(String email, String role, long expiration) {
+        var builder = Jwts.builder()
                 .setSubject(email)
-                .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
-                .signWith(SignatureAlgorithm.HS256, SECRET)
-                .compact();
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(SignatureAlgorithm.HS256, SECRET);
+        if (role != null) builder.claim("role", role);
+        return builder.compact();
     }
 
     // get email from token

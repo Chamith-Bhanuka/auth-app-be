@@ -64,7 +64,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // allow react frontend
+        // allow to react frontend
         config.setAllowedOrigins(List.of(frontendUrl));
 
         // allow all methods
