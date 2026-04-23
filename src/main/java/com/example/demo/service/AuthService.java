@@ -33,7 +33,7 @@ public class AuthService {
 
         repo.save(user);
 
-        return new ApiResponse<>(true, "User registered", "success");
+        return new ApiResponse<>(true, "User registered", "success", null);
     }
 
     // login user

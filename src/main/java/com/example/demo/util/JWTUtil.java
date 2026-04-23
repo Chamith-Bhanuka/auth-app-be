@@ -14,14 +14,14 @@ public class JWTUtil {
     @Value("${jwt.secretKey}")
     private String SECRET;
 
-    // short-lived - 15 minutes
+    // short-lived - 10 minutes
     public String generateAccessToken(String email, String role) {
-        return createToken(email, role, 1000 * 60 * 15);
+        return createToken(email, role, 1000 * 60 * 10);
     }
 
-    // long-lived - 7 days
+    // long-lived - 30 minutes
     public String generateRefreshToken(String email) {
-        return createToken(email, null, 1000 * 60 * 60 * 24 * 7);
+        return createToken(email, null, 1000 * 60 * 30);
     }
 
     private String createToken(String email, String role, long expiration) {

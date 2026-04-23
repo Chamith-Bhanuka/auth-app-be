@@ -14,4 +14,7 @@ public class ApiResponse <T>{
 
     // actual data
     private T data;
+
+    // "cache" or "database"
+    private String meta;
 }

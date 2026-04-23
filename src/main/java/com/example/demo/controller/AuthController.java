@@ -34,15 +34,15 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody LoginRequest req) {
         AuthResponse auth = service.login(req);
 
-        // Access token cookie (15 min)
-        ResponseCookie accessCookie = createCookie("accessToken", auth.getToken(), 15 * 60);
-        // Refresh token cookie (7 days)
-        ResponseCookie refreshCookie = createCookie("refreshToken", auth.getRefreshToken(), 7 * 24 * 60 * 60);
+        // Access token cookie (10 min)
+        ResponseCookie accessCookie = createCookie("accessToken", auth.getToken(), 10 * 60);
+        // Refresh token cookie (30 min)
+        ResponseCookie refreshCookie = createCookie("refreshToken", auth.getRefreshToken(), 30 * 60);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(new ApiResponse<>(true, "Login successful", auth));
+                .body(new ApiResponse<>(true, "Login successful", auth, null));
     }
 
     private ResponseCookie createCookie(String name, String value, long maxAge) {
@@ -60,18 +60,18 @@ public class AuthController {
         String refreshToken = getCookieValue(request, "refreshToken");
 
         if (refreshToken == null) {
-            return ResponseEntity.status(401).body(new ApiResponse<>(false, "Refresh token missing", null));
+            return ResponseEntity.status(401).body(new ApiResponse<>(false, "Refresh token missing", null, null));
         }
 
         try {
             String newAccessToken = service.refreshAccessToken(refreshToken);
-            ResponseCookie newAccessCookie = createCookie("accessToken", newAccessToken, 15 * 60);
+            ResponseCookie newAccessCookie = createCookie("accessToken", newAccessToken, 10 * 60);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, newAccessCookie.toString())
-                    .body(new ApiResponse<>(true, "Token refreshed", "success"));
+                    .body(new ApiResponse<>(true, "Token refreshed", "success", null));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(new ApiResponse<>(false, e.getMessage(), null));
+            return ResponseEntity.status(401).body(new ApiResponse<>(false, e.getMessage(), null, null));
         }
     }
 
@@ -95,6 +95,6 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(new ApiResponse<>(true, "Logged out successfully", null));
+                .body(new ApiResponse<>(true, "Logged out successfully", null, null));
     }
 }
